@@ -12,16 +12,13 @@ import IconRun from "react-native-vector-icons/FontAwesome5";
 import IconFood from "react-native-vector-icons/MaterialCommunityIcons";
 import base64 from 'react-native-base64';
 import {TextInput, Button} from "react-native-paper";
-import nodejs from 'nodejs-mobile-react-native';
 
 class Login extends React.Component {
    constructor(props) {
       super(props);
       this.state = {
          username: '',
-         password: '',
-         token: '',
-         response: ''
+         password: ''
       };
 
    }
@@ -31,59 +28,50 @@ class Login extends React.Component {
       });
    };
 
-   async saveToken(key, token) {
-      await AsyncStorage.setItem(key, token);
+   async saveId(key, value) {
+      await AsyncStorage.setItem(key, value);
    }
 
-   /*
       async loginAttempt() {
-         await fetch('https://mysqlcs639.cs.wisc.edu/login', {
-            method: 'GET',
-            headers: {'Authorization': 'Basic ' + base64.encode(this.state.username + ":" + this.state.password)},
-         })
-            .then((response) => response.json())
-            .then((responseData) => {
-               console.log(responseData);
-               if (responseData !== "") {
-                  let key;
-                  let value;
-                  for (let [key2, value2] of Object.entries(responseData)) {
-                     key = key2;
-                     value = value2;
-                     break;
-                  }
-                  if (key === "token") {
-                     this.setState({[key]: value}, function () {
-                        console.log("");
-                     });
-                     this.saveToken("token", value);
-                     this.saveToken("username", this.state.username);
-                     this.props.navigation.navigate('Dashboard', {token: this.state.token, username: this.state.username})
-                  } else if (this.state.password.length < 5 || this.state.username.length < 5) {
-                     alert("Username/Password must be at least 5 characters long");
-                     console.log('username:' + this.state.username);
-                     console.log('password:' + this.state.password);
-                  } else {
-                     alert("Invalid Username/Password");
-                  }
-
+         let response = await fetch('https://cs506spike.azurewebsites.net/api/Login', {
+            method: 'POST',
+            headers: {
+               'Accept': 'application/json',
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+               username: this.state.username,
+               password: this.state.password,
+            }),
+         });
+         let route = this.CheckStatus(response);
+         if(route) {
+            this.props.navigation.navigate('Dashboard');
+         }
+      }
+            async CheckStatus(response)
+            {
+               let isValid = false;
+               let status = response['status'];
+               if(status === 200 || status === 201) {
+                  isValid = true;
+               } else {
+                  alert("Incorrect Username or Password");
+                  return false;
                }
-            })
-            .done();
-      }*/
-
-/*   componentWillMount()
-   {
-      nodejs.start('main.js');
-      nodejs.channel.addListener(
-          'message',
-          (msg) => {
-             alert('From node: ' + msg);
-          },
-          this
-      );
-   }*/
-
+               let data = await response.json();
+               if(isValid) {
+                  let responseObj = data[0];
+                  console.log(responseObj);
+                  for (let [key, value] of Object.entries(responseObj)) {
+                     if (key === 'id') {
+                        this.saveId('id', value);
+                     }
+                  }
+               }
+               return true;
+            }
+            
    render() {
 
       return (
@@ -143,17 +131,13 @@ class Login extends React.Component {
                      marginBottom: 80,
                   }}>
                      <Button
-                        color={"purple"}
-                        mode="cont/*style={styles.addButton}*/ained"
-                        size={50}
-
-                        //onPress={() => this.loginAttempt()}
-                        onPress={() => this.props.navigation.navigate('Dashboard')}
+                         color={"purple"}
+                         mode="contained"
+                         size={50}
+                         style={styles.addButton}
+                         onPress={() => this.loginAttempt()}
                      >Login</Button>
-                     <Button title="Message Node"
-                             onPress={() => nodejs.channel.send('A message!')}
-                     />
-                     <Text style={{marginTop: 30, color: 'blue', textDecorationLine: 'underline'}}
+                     <Text style={{marginTop: 90, color: 'blue', textDecorationLine: 'underline'}}
                            onPress={() => this.props.navigation.navigate('signUp')}
                            underlayColor={'red'}>
                         Don't have an account? Sign up!</Text>
@@ -177,6 +161,11 @@ const styles = StyleSheet.create({
       fontSize: 17,
       fontWeight: 'bold',
       marginBottom: 25
+   },
+   addButton: {
+      alignSelf: 'center',
+      position: 'absolute',
+
    }
 });
 

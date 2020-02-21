@@ -23,8 +23,8 @@ namespace CS506_Spike.Controllers
         public async Task<IActionResult> Login([FromBody] People person)
         {
             var username = person.UserName;
-            var password = person.UserName;
-            if (await _context.People.AnyAsync(p => p.UserName == username) && await _context.People.AnyAsync(p => p.UserName == password))
+            var password = person.PassWord;
+            if (await _context.People.AnyAsync(p => p.UserName == username && p.PassWord == password))
             {
                 var foundPerson = _context.People.Where(p => p.UserName == username);
                 return Ok(foundPerson);
