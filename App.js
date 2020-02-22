@@ -6,6 +6,8 @@ import Login from "./Components/Login";
 import Signup from "./Components/Signup";
 import User from "./Components/User";
 import Dashboard from "./Components/Dashboard";
+import Movie from "./Components/Movie";
+import Food from "./Components/Food";
 
 class App extends React.Component {
    constructor(props) {
@@ -28,7 +30,16 @@ class App extends React.Component {
 
 const AppDrawerNavigator = createDrawerNavigator({
    Dashboard: {
-      screen: Dashboard
+      screen: Dashboard,
+      navigationOptions : {
+         title: "About Me"
+      }
+   },
+   Movie: {
+      screen: Movie
+   },
+   Food: {
+      screen: Food
    },
    Profile: {
       title: 'Profile',

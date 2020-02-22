@@ -7,11 +7,11 @@ import {
    StyleSheet,
    Text,
    View,
-   Dimensions
+   Dimensions,
+   TextInput
 } from "react-native";
 import Header from "./Header";
-import {DataTable, Avatar, Card, Title, Paragraph} from 'react-native-paper';
-import moment from "moment";
+import {DataTable, Avatar, Card, Title, Paragraph, Button,} from 'react-native-paper';
 
 class Dashboard extends React.Component {
    constructor(props) {
@@ -19,6 +19,7 @@ class Dashboard extends React.Component {
       this.state = {
          behavior: 'padding',
          token: '',
+         text:'',
       };
 
    }
@@ -26,79 +27,83 @@ class Dashboard extends React.Component {
    getData = async (key) => {
       try {
          let data = await AsyncStorage.getItem(key);
-         this.setState({[key]: data});
+         return data;
+         //this.setState({[key]: data});
       } catch (errorMessage) {
          console.log(errorMessage);
       }
    };
 
-
-   handleObject = (data) => {
-      for (let [key, value] of Object.entries(data)) {
-         this.setState({[key]: value});
-      }
+   handleChanges = (value, text) => {
+      this.setState({[value]: text}, function () {
+      });
    };
 
-
-/*
-   async updateAPI() {
-
-
-      let token = this.state.token;
-      let defaultUrl = 'https://mysqlcs639.cs.wisc.edu/';
-      await fetch(defaultUrl, {
-         method: 'GET',
+   async SaveAttempt() {
+      let id = await this.getData('id');
+      let defaultUrl = 'https://cs506spike.azurewebsites.net/api/People/' + id;
+      let response =  await fetch(defaultUrl, {
+         method: 'PUT',
          headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'x-access-token': token
+            'id': id
          },
-      })
-          .then((response) => response.json())
-          .then((responseData) => {
-             this.handleObject(responseData);
-          })
-          .done();
+         body: JSON.stringify({
+            description: this.state.text
+         }),
+      });
+      this.CheckSaveStatus(response);
+   }
 
-
-      await this.getData("username");
-      let username = this.state.username;
-      let defaultUrlProfile = 'https://mysqlcs639.cs.wisc.edu/users/';
-      this.setState({token: token});
-      defaultUrlProfile = defaultUrlProfile + username;
-      await fetch(defaultUrlProfile, {
-         method: 'GET',
-         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'x-access-token': token
-         },
-      })
-          .then((response) => response.json())
-          .then((responseData) => {
-             this.handleObject(responseData);
-
-          });
-
-
-      let mealsUrl = 'https://mysqlcs639.cs.wisc.edu/';
-      mealsUrl = mealsUrl + 'meals/';
-
-      await fetch(mealsUrl, {
-         method: 'GET',
-         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'x-access-token': token
-         },
-      })
-          .then((response) => response.json())
-          .then((responseData) => {
-             this.handleObject(responseData);
-          });
-
+   async CheckSaveStatus(response) {
+      let status = response['status'];
+      if (status === 200 || status === 201)
+      {
+         alert("Text Saved!")
+      }
+      else
+      {
+         alert("Error while saving text");
+      }
 
    }
+
+   async updateAPI() {
+
+      let id = await this.getData('id');
+      let defaultUrl = 'https://cs506spike.azurewebsites.net/api/People/' + id;
+      let response =  await fetch(defaultUrl, {
+         method: 'GET',
+         headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'id': id
+         },
+      });
+      this.CheckStatus(response);
+   }
+
+   async CheckStatus(response) {
+      let status = response['status'];
+      if (status === 200 || status === 201)
+      {
+         let data = await response.json();
+         for (let [key, value] of Object.entries(data)) {
+            if (key === 'description') {
+               this.setState({text: value}, function () {
+               });
+            }
+         }
+      }
+      else
+         {
+            alert("Error while retrieving data");
+         }
+
+      }
+
+
 
    componentDidMount() {
       // On mount, do the first update
@@ -110,29 +115,49 @@ class Dashboard extends React.Component {
 
    }
 
-
    componentWillUnmount() {
       // Remove the event listener
       this.focusListener.remove();
    }
-*/
-
 
    render() {
       return (
          <>
-
-            <Header navigation={this.props.navigation} title={"Dashboard"}/>
+            <View style={{flex: 1, flexDirection: 'column'}}>
+            <Header navigation={this.props.navigation} title={"About Me"}/>
             <KeyboardAvoidingView behavior={this.state.behavior} style={styles.container}>
                <SafeAreaView style={styles.container}>
                   <ScrollView style={styles.scrollView}>
-                     <View style={{backgroundColor: 'whitesmoke', flex: 1, flexDirection: 'column'}}>
-
-                        <Text>Hello</Text>
+                     <View style={{backgroundColor: 'whitesmoke', flexDirection: 'column'}}>
+                        <TextInput
+                            multiline={true}
+                            style=
+                             {{
+                               textAlignVertical: 'top',
+                               height: Dimensions.get('window').height - 100,
+                               borderColor: 'black',
+                               borderWidth: 1,
+                               width: Dimensions.get('window').width,
+                                padding:6,
+                             }}
+                            onChangeText={text => this.handleChanges("text", text)}
+                            value={this.state.text}
+                        />
                      </View>
+
+                     <Button
+                         color={"purple"}
+                         mode="contained"
+                         size={50}
+                         style={styles.addButton}
+                         onPress={() => {
+                            this.SaveAttempt();
+                         }}
+                     >Save</Button>
                   </ScrollView>
                </SafeAreaView>
             </KeyboardAvoidingView>
+            </View>
 
 
          </>
@@ -157,6 +182,11 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       paddingHorizontal: 0,
       paddingTop: 0,
+   },
+   addButton: {
+      alignSelf: 'center',
+      position: 'absolute',
+      bottom: 10
    }
 
 });

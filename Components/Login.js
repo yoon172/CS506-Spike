@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import IconRun from "react-native-vector-icons/FontAwesome5";
 import IconFood from "react-native-vector-icons/MaterialCommunityIcons";
-import base64 from 'react-native-base64';
 import {TextInput, Button} from "react-native-paper";
 
 class Login extends React.Component {
@@ -44,10 +43,9 @@ class Login extends React.Component {
                password: this.state.password,
             }),
          });
+         console.log(response);
          let route = this.CheckStatus(response);
-         if(route) {
-            this.props.navigation.navigate('Dashboard');
-         }
+
       }
             async CheckStatus(response)
             {
@@ -60,14 +58,15 @@ class Login extends React.Component {
                   return false;
                }
                let data = await response.json();
+               console.log(data);
                if(isValid) {
                   let responseObj = data[0];
-                  console.log(responseObj);
                   for (let [key, value] of Object.entries(responseObj)) {
                      if (key === 'id') {
-                        this.saveId('id', value);
+                        this.saveId('id', value.toString());
                      }
                   }
+                  this.props.navigation.navigate('Dashboard');
                }
                return true;
             }
@@ -81,17 +80,17 @@ class Login extends React.Component {
                <KeyboardAvoidingView style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
                                      behavior="padding" enabled>
                   <View style={{flex: 1.0, alignItems: 'center', justifyContent: 'center'}}>
-                     <Text style={styles.title}>Tracker</Text>
+                     <Text style={styles.title}>CS506 Spike</Text>
                   </View>
                   <View style={{flex: 1.0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
                      <IconRun
-                        name={"running"}
+                        name={"database"}
                         color="#add8e6"
                         size={60}
                         style={{marginBottom: 25}}
                      />
                      <IconFood
-                        name={"food-apple"}
+                        name={"laptop"}
                         color="#DB7093"
                         size={60}
                         style={{marginLeft: 10, marginBottom: 25}}

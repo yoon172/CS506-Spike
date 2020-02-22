@@ -2,8 +2,8 @@
   "devToolsPort": 19002,
   "expoServerPort": 19000,
   "packagerPort": 19001,
-  "packagerPid": 13008,
-  "expoServerNgrokUrl": "https://ng-43x.anonymous.cs506-spike.exp.direct",
-  "packagerNgrokUrl": "https://packager.ng-43x.anonymous.cs506-spike.exp.direct",
-  "ngrokPid": 2272
+  "packagerPid": 8340,
+  "expoServerNgrokUrl": "https://ds-cj2.anonymous.cs506-spike.exp.direct",
+  "packagerNgrokUrl": "https://packager.ds-cj2.anonymous.cs506-spike.exp.direct",
+  "ngrokPid": 2220
 }

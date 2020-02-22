@@ -50,12 +50,44 @@ namespace CS506_Spike.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> ChangePerson([FromHeader] int id, [FromBody] People person)
         {
+
             if (PersonExists(id).Result)
             {
-                person.Id = id;
-                _context.Entry(person).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                var oldperson = await _context.People.SingleOrDefaultAsync(p => p.Id == id);
+
+                if (person.FirstName != null)
+                {
+                    oldperson.FirstName = person.FirstName;
+                }
+                if (person.LastName != null)
+                {
+                    oldperson.LastName = person.LastName;
+                }
+                if (person.UserName != null)
+                {
+                    oldperson.UserName = person.UserName;
+                }
+                if (person.PassWord != null)
+                {
+                    oldperson.PassWord = person.PassWord;
+                }
+                if (person.FavoriteFood != null)
+                {
+                    oldperson.FavoriteFood = person.FavoriteFood;
+                }
+                if (person.FavoriteMovie != null)
+                {
+                    oldperson.FavoriteMovie = person.FavoriteMovie;
+                }
+                if (person.Description != null)
+                {
+                    oldperson.Description = person.Description;
+                }
+
+                oldperson.Id = id;
+                _context.Entry(oldperson).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                 await _context.SaveChangesAsync();
-                return Ok(person);
+                return Ok(oldperson);
             }
             else
             {
@@ -67,13 +99,35 @@ namespace CS506_Spike.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePerson([FromBody] People person)
         {
-            if (!ModelState.IsValid)
+            /* if (!ModelState.IsValid)
+             {
+                 return BadRequest(ModelState);
+             }*/
+            if (person.FirstName == null) 
             {
-                return BadRequest(ModelState);
+                person.FirstName = "";
             }
+            if (person.LastName == null)
+            {
+                person.LastName = "";
+            }
+            if (person.FavoriteFood == null)
+            {
+                person.FavoriteFood = "";
+            }
+            if (person.FavoriteMovie == null)
+            {
+                person.FavoriteMovie = "";
+            }
+            if (person.Description == null)
+            {
+                person.Description = "";
+            }
+
+
             _context.Add(person);
             await _context.SaveChangesAsync();
-            return CreatedAtAction("getPerson", new { id = person.Id }, person);
+            return Ok();//CreatedAtAction("getPerson", new { id = person.Id }, person);
         }
 
 

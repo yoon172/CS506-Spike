@@ -27,38 +27,36 @@ class Signup extends React.Component {
    };
 
    async signupAttempt() {
-      await fetch('https://mysqlcs639.cs.wisc.edu/users', {
+      let response = await fetch('https://cs506spike.azurewebsites.net/api/People', {
          method: 'POST',
          headers: {
-            'Accept': 'application/json', 'Content-Type': 'application/json'
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
          },
          body: JSON.stringify({
             username: this.state.username,
             password: this.state.password,
-         })
-      })
-         .then((response) => response.json())
-         .then((responseData) => {
-            this.getResponse(responseData);
-         })
-         .done();
+         }),
+      });
+      let route = this.CheckStatus(response);
+      if(route) {
+         this.props.navigation.navigate('login');
+      }
+   }
+   async CheckStatus(response)
+   {
+      let status = response['status'];
+      if(status === 200 || status === 201) {
+         alert("User Created!");
+         return true;
+      } else {
+         alert("Error while creating new user");
+         return false;
+      }
+
    }
 
 
-   getResponse = (responseData) => {
-      if (responseData == null || responseData <= 0) {
-         return "";
-      } else {
-         if (responseData[Object.keys(responseData)[0]] === "User created!") {
-            alert(responseData[Object.keys(responseData)[0]]);
-            this.props.navigation.navigate('login');
-         } else if (responseData[Object.keys(responseData)[0]] === "Username already taken!") {
-            alert(responseData[Object.keys(responseData)[0]]);
-         } else {
-            alert("Error while Signing Up");
-         }
-      }
-   };
 
 
    render() {
@@ -70,7 +68,7 @@ class Signup extends React.Component {
                   behavior="padding" enabled>
                   <View
                      style={{flex: 0.5, backgroundColor: 'whitesmoke', alignItems: 'center', justifyContent: 'center'}}>
-                     <Text style={styles.title}>Fitness/Calorie Tracking App</Text>
+                     <Text style={styles.title}>CS506 Spike</Text>
                   </View>
                   <View style={{flex: 0.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
                      <Icon
